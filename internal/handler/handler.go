@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"strings"
+
 	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/service"
 )
 
@@ -8,12 +10,48 @@ type Handler struct {
 	svc *service.Service
 }
 
+// Создать новый обработчик
 func New(svc *service.Service) *Handler {
 	return &Handler{
 		svc: svc,
 	}
 }
 
-func (h *Handler) Handle(input string) string {
-	return h.svc.Process(input)
+// Обработка сообщений
+func (h *Handler) Handle(inputText string) string {
+	if inputText == "" {
+		return ""
+	}
+
+	if h.isCommand(inputText) {
+		return h.handleCommand(inputText)
+	}
+
+	return h.handleChat(inputText)
+}
+
+// Проверка на тип сообщения
+func (h *Handler) isCommand(inputText string) bool {
+	return len(inputText) > 0 && inputText[0] == '/'
+}
+
+// Если команда
+func (h *Handler) handleCommand(inputText string) string {
+	inputText = strings.TrimSpace(inputText)
+
+	switch inputText {
+	case "/start":
+		return "Привет! Я пока что ничего не умею :("
+	case "/help":
+		return "Доступные команды:\n" +
+			"/start - приветствие\n" +
+			"/help - помощь"
+	default:
+		return "Неизвестная команда"
+	}
+}
+
+// Если обычное сообщение
+func (h *Handler) handleChat(inputText string) string {
+	return h.svc.Process(inputText)
 }
