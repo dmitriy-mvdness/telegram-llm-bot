@@ -1,6 +1,8 @@
 package handler
 
-import "github.com/dmitriy-mvdness/telegram-llm-bot/internal/service"
+import (
+	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/service"
+)
 
 type Handler struct {
 	svc *service.Service

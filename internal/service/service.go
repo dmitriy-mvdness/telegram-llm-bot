@@ -7,5 +7,5 @@ func New() *Service {
 }
 
 func (s *Service) Process(input string) string {
-	return "processed: " + input
+	return "echo: " + input
 }
