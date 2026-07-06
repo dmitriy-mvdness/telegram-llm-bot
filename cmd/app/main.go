@@ -1,7 +1,17 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/handler"
+	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/service"
+)
 
 func main() {
-	fmt.Println("Hello, world")
+	svc := service.New()
+	h := handler.New(svc)
+
+	result := h.Handle("hello")
+
+	fmt.Println(result)
 }
