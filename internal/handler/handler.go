@@ -18,7 +18,7 @@ func New(svc *service.Service) *Handler {
 }
 
 // Обработка сообщений
-func (h *Handler) Handle(inputText string) string {
+func (h *Handler) Handle(userID string, inputText string) string {
 	if inputText == "" {
 		return ""
 	}
@@ -27,7 +27,7 @@ func (h *Handler) Handle(inputText string) string {
 		return h.handleCommand(inputText)
 	}
 
-	return h.handleChat(inputText)
+	return h.handleChat(userID, inputText)
 }
 
 // Проверка на тип сообщения
@@ -53,6 +53,6 @@ func (h *Handler) handleCommand(inputText string) string {
 }
 
 // Если обычное сообщение
-func (h *Handler) handleChat(inputText string) string {
-	return h.svc.Process(inputText)
+func (h *Handler) handleChat(userID string, inputText string) string {
+	return h.svc.Process(userID, inputText)
 }

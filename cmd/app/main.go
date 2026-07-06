@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 
 	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/config"
@@ -43,7 +44,9 @@ func main() {
 			return
 		}
 
-		resp := h.Handle(update.Message.Text)
+		userID := strconv.FormatInt(update.Message.Chat.ID, 10)
+
+		resp := h.Handle(userID, update.Message.Text)
 
 		_, err := b.SendMessage(ctx, &bot.SendMessageParams{
 			ChatID: update.Message.Chat.ID,
