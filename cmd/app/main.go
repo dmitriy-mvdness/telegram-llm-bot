@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/config"
 	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/handler"
 	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/service"
 	"github.com/go-telegram/bot"
@@ -27,7 +28,9 @@ func main() {
 		log.Fatal("TELEGRAM_TOKEN is empty!")
 	}
 
-	svc := service.New()
+	cfg := config.Load()
+
+	svc := service.New(cfg)
 	h := handler.New(svc)
 
 	b, err := bot.New(token)

@@ -41,13 +41,14 @@ func (h *Handler) handleCommand(inputText string) string {
 
 	switch inputText {
 	case "/start":
-		return "Привет! Я пока что ничего не умею :("
+		return "Привет! Я ИИ-Ассистент. Задай любой вопрос, и я постараюсь помочь:-]"
 	case "/help":
 		return "Доступные команды:\n" +
 			"/start - приветствие\n" +
-			"/help - помощь"
+			"/help - помощь\n\n" +
+			"Просто напиши свой вопрос, и я отвечу!"
 	default:
-		return "Неизвестная команда"
+		return "Неизвестная команда!"
 	}
 }
 

@@ -1,5 +1,7 @@
 package config
 
+import "os"
+
 type Config struct {
 	TelegramClient string
 	DatabaseURL    string
@@ -7,5 +9,8 @@ type Config struct {
 }
 
 func Load() Config {
-	return Config{}
+	return Config{
+		TelegramClient: os.Getenv("TELEGRAM_TOKEN"),
+		OllamaHost:     os.Getenv("OLLAMA_HOST"),
+	}
 }
