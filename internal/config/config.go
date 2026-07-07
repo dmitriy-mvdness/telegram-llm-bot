@@ -11,6 +11,6 @@ type Config struct {
 func Load() Config {
 	return Config{
 		TelegramClient: os.Getenv("TELEGRAM_TOKEN"),
-		OllamaHost:     os.Getenv("OLLAMA_HOST"),
+		OllamaHost:     os.Getenv("OLLAMA_BASE_URL"),
 	}
 }
