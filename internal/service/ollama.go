@@ -4,25 +4,42 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
+
+	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/config"
 )
 
 type OllamaClient struct {
-	baseURL string
-	model   string
+	baseURL     string
+	model       string
+	numCtx      int
+	numPredict  int
+	temperature float64
+	think       bool
 }
 
-func NewOllamaClient(baseURL string, model string) *OllamaClient {
+func NewOllamaClient(cfg config.OllamaConfig) *OllamaClient {
 	return &OllamaClient{
-		baseURL: baseURL,
-		model:   model,
+		baseURL:     cfg.BaseURL,
+		model:       cfg.Model,
+		numCtx:      cfg.NumCtx,
+		numPredict:  cfg.NumPredict,
+		temperature: cfg.Temperature,
+		think:       cfg.Think,
 	}
 }
 
-func (o *OllamaClient) Generate(promt string) (string, error) {
+func (o *OllamaClient) Generate(prompt string) (string, error) {
 	reqBody := map[string]any{
 		"model":  o.model,
-		"prompt": promt,
+		"prompt": prompt,
 		"stream": false,
+		"think":  o.think,
+
+		"options": map[string]any{
+			"num_ctx":     o.numCtx,
+			"num_predict": o.numPredict,
+			"temperature": o.temperature,
+		},
 	}
 
 	data, err := json.Marshal(reqBody)

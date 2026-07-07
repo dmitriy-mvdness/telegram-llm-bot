@@ -4,8 +4,6 @@ import (
 	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/config"
 )
 
-const defaultModel = "qwen2.5:3b" // Модель Ollama по умолчанию
-
 const systemPrompt = `
 Ты — AI-ассистент.
 Пиши только на русском языке.
@@ -22,7 +20,7 @@ type Service struct {
 
 func New(cfg config.Config) *Service {
 	return &Service{
-		llm:    NewOllamaClient(cfg.OllamaHost, defaultModel),
+		llm:    NewOllamaClient(cfg.Ollama),
 		memory: NewMemory(),
 	}
 }
