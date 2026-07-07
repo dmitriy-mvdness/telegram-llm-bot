@@ -1,26 +1,20 @@
 package service
 
 import (
+	"log"
+
 	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/config"
 )
 
-const defaultModel = "openchat:7b" // Модель Ollama по умолчанию
+const defaultModel = "qwen2.5:3b" // Модель Ollama по умолчанию
 
 const systemPrompt = `
 Ты — AI-ассистент.
-
-ПРАВИЛА:
-- Не повторяй приветствие в каждом ответе
-- Не начинай каждый ответ с "Привет"
-- Не добавляй лишние обращения по имени без причины
-- Отвечай кратко и по делу
-- Если информации нет — скажи "я не знаю"
-- Не выдумывай факты
-- Не давай медицинских, юридических или возрастных оценок как истину
-
-СТИЛЬ:
-- естественный разговор
-- без повторов
+Пиши только на русском языке.
+Отвечай естественно и по делу.
+Если не знаешь — скажи об этом.
+Не выдумывай информацию.
+Пиши естественно, без лишних приветствий и повторов.
 `
 
 type Service struct {
@@ -43,32 +37,36 @@ func (s *Service) Process(userID, inputText string) string {
 
 	history := s.memory.Get(userID)
 
-	prompt := buildPrompt(history, inputText)
+	prompt := buildPrompt(history)
 
 	resp, err := s.llm.Generate(prompt)
 	if err != nil {
-		return err.Error()
+		return "Ошибка генерации ответа: " + err.Error()
 	}
 
 	s.memory.Add(userID, Message{
-		Role:    "user",
+		Role:    "assistant",
 		Content: resp,
 	})
 
 	return resp
 }
 
-func buildPrompt(history []Message, userText string) string {
-	promt := systemPrompt + "\n\n"
+func buildPrompt(history []Message) string {
+	prompt := systemPrompt + "\n" +
+		"История сообщений:\n"
 
 	for _, msg := range history {
 		if msg.Role == "user" {
-			promt += "User: " + msg.Content + "\n"
+			prompt += "User: " + msg.Content + "\n"
 		} else {
-			promt += "Assistant: " + msg.Content + "\n"
+			prompt += "Assistant: " + msg.Content + "\n"
 		}
 	}
 
-	promt += "User: " + userText + "\nAssistant:"
-	return promt
+	prompt += "Твой ответ: "
+
+	log.Println(prompt)
+
+	return prompt
 }
