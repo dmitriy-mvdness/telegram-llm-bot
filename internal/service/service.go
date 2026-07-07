@@ -1,8 +1,6 @@
 package service
 
 import (
-	"log"
-
 	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/config"
 )
 
@@ -65,8 +63,6 @@ func buildPrompt(history []Message) string {
 	}
 
 	prompt += "Твой ответ: "
-
-	log.Println(prompt)
 
 	return prompt
 }
