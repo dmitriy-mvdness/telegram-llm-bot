@@ -33,6 +33,19 @@ func main() {
 
 	llm := service.NewOllamaClient(cfg.Ollama)
 
+	log.Println("Checking Ollama...")
+	if err := llm.Health(ctx); err != nil {
+		log.Fatalf("Ollama health check failed: %v", err)
+	}
+	log.Println("Ollama is available.")
+
+	log.Println("Checking LLM readiness...")
+	if err := llm.Ready(ctx); err != nil {
+		log.Fatalf("LLM health check failed: %v", err)
+	}
+
+	log.Println("LLM is ready.")
+
 	svc := service.New(llm)
 
 	h := handler.New(svc)

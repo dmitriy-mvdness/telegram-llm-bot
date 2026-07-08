@@ -4,11 +4,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/config"
 )
 
 type OllamaClient struct {
+	client *http.Client
+
 	baseURL     string
 	model       string
 	numCtx      int
@@ -19,6 +22,9 @@ type OllamaClient struct {
 
 func NewOllamaClient(cfg config.OllamaConfig) *OllamaClient {
 	return &OllamaClient{
+		client: &http.Client{
+			Timeout: time.Duration(cfg.HealthTimeout) * time.Second,
+		},
 		baseURL:     cfg.BaseURL,
 		model:       cfg.Model,
 		numCtx:      cfg.NumCtx,
