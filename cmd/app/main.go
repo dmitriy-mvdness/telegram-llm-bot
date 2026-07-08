@@ -31,7 +31,10 @@ func main() {
 
 	cfg := config.Load()
 
-	svc := service.New(cfg)
+	llm := service.NewOllamaClient(cfg.Ollama)
+
+	svc := service.New(llm)
+
 	h := handler.New(svc)
 
 	b, err := bot.New(token)

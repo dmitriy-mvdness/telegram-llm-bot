@@ -1,9 +1,5 @@
 package service
 
-import (
-	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/config"
-)
-
 const systemPrompt = `
 Ты — AI-ассистент.
 Пиши только на русском языке.
@@ -14,13 +10,13 @@ const systemPrompt = `
 `
 
 type Service struct {
-	llm    *OllamaClient
+	llm    LLM
 	memory *Memory
 }
 
-func New(cfg config.Config) *Service {
+func New(llm LLM) *Service {
 	return &Service{
-		llm:    NewOllamaClient(cfg.Ollama),
+		llm:    llm,
 		memory: NewMemory(),
 	}
 }
