@@ -15,24 +15,24 @@ const systemPrompt = `
 `
 
 type Service struct {
-	llm    LLM
-	memory *storage.Memory
+	llm   LLM
+	store storage.MessageStore
 }
 
-func New(llm LLM) *Service {
+func New(llm LLM, store storage.MessageStore) *Service {
 	return &Service{
-		llm:    llm,
-		memory: storage.NewMemory(),
+		llm:   llm,
+		store: store,
 	}
 }
 
 func (s *Service) Process(userID, inputText string) string {
-	s.memory.Add(userID, model.Message{
+	s.store.Add(userID, model.Message{
 		Role:    "user",
 		Content: inputText,
 	})
 
-	history := s.memory.Get(userID)
+	history := s.store.Get(userID)
 
 	messages := append(
 		[]model.Message{
@@ -49,7 +49,7 @@ func (s *Service) Process(userID, inputText string) string {
 		return "Ошибка генерации ответа: " + err.Error()
 	}
 
-	s.memory.Add(userID, model.Message{
+	s.store.Add(userID, model.Message{
 		Role:    "assistant",
 		Content: resp,
 	})
@@ -58,5 +58,5 @@ func (s *Service) Process(userID, inputText string) string {
 }
 
 func (s *Service) ClearMemory(userID string) {
-	s.memory.Clear(userID)
+	s.store.Clear(userID)
 }
