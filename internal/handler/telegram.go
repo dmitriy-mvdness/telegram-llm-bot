@@ -15,6 +15,21 @@ func (h *Handler) Register(b *bot.Bot) {
 			return
 		}
 
+		userID := strconv.FormatInt(update.Message.Chat.ID, 10)
+
+		if h.isCommand(update.Message.Text) {
+			resp := h.Handle(
+				userID,
+				update.Message.Text,
+			)
+
+			b.SendMessage(ctx, &bot.SendMessageParams{
+				ChatID: userID,
+				Text:   resp,
+			})
+			return
+		}
+
 		statusMsg, err := b.SendMessage(ctx, &bot.SendMessageParams{
 			ChatID: update.Message.Chat.ID,
 			Text:   "Бот печатает...",
@@ -22,8 +37,6 @@ func (h *Handler) Register(b *bot.Bot) {
 		if err != nil {
 			log.Println(err)
 		}
-
-		userID := strconv.FormatInt(update.Message.Chat.ID, 10)
 
 		resp := h.Handle(userID, update.Message.Text)
 
