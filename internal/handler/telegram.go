@@ -15,39 +15,52 @@ func (h *Handler) Register(b *bot.Bot) {
 			return
 		}
 
-		userID := strconv.FormatInt(update.Message.Chat.ID, 10)
+		chatID := update.Message.Chat.ID
+		userID := strconv.FormatInt(chatID, 10)
+		text := update.Message.Text
 
-		if h.isCommand(update.Message.Text) {
-			resp := h.Handle(
-				userID,
-				update.Message.Text,
-			)
+		if h.isCommand(text) {
+			resp := h.Handle(userID, text)
 
 			b.SendMessage(ctx, &bot.SendMessageParams{
-				ChatID: userID,
+				ChatID: chatID,
 				Text:   resp,
 			})
 			return
 		}
 
-		statusMsg, err := b.SendMessage(ctx, &bot.SendMessageParams{
-			ChatID: update.Message.Chat.ID,
-			Text:   "Бот печатает...",
+		_, err := b.SendChatAction(ctx, &bot.SendChatActionParams{
+			ChatID: chatID,
+			Action: models.ChatActionTyping,
 		})
 		if err != nil {
-			log.Println(err)
+			log.Printf("failed to send chat action: %v", err)
 		}
 
-		resp := h.Handle(userID, update.Message.Text)
+		statusMsg, err := b.SendMessage(ctx, &bot.SendMessageParams{
+			ChatID: chatID,
+			Text:   "⏳ Бот думает...",
+		})
+		if err != nil {
+			log.Printf("failed to send status message: %v", err)
+			resp := h.Handle(userID, text)
+			b.SendMessage(ctx, &bot.SendMessageParams{ChatID: chatID, Text: resp})
+			return
+		}
+
+		resp := h.Handle(userID, text)
 
 		_, err = b.EditMessageText(ctx, &bot.EditMessageTextParams{
-			ChatID:    update.Message.Chat.ID,
+			ChatID:    chatID,
 			MessageID: statusMsg.ID,
 			Text:      resp,
-		},
-		)
+		})
 		if err != nil {
-			log.Println(err)
+			log.Printf("failed to edit message: %v", err)
+			b.SendMessage(ctx, &bot.SendMessageParams{
+				ChatID: chatID,
+				Text:   resp,
+			})
 		}
 	})
 }
