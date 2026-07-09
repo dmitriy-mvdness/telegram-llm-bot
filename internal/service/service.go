@@ -29,9 +29,17 @@ func (s *Service) Process(userID, inputText string) string {
 
 	history := s.memory.Get(userID)
 
-	prompt := buildPrompt(history)
+	messages := append(
+		[]Message{
+			{
+				Role:    "system",
+				Content: systemPrompt,
+			},
+		},
+		history...,
+	)
 
-	resp, err := s.llm.Generate(prompt)
+	resp, err := s.llm.Chat(messages)
 	if err != nil {
 		return "Ошибка генерации ответа: " + err.Error()
 	}
@@ -42,23 +50,6 @@ func (s *Service) Process(userID, inputText string) string {
 	})
 
 	return resp
-}
-
-func buildPrompt(history []Message) string {
-	prompt := systemPrompt + "\n" +
-		"История сообщений:\n"
-
-	for _, msg := range history {
-		if msg.Role == "user" {
-			prompt += "User: " + msg.Content + "\n"
-		} else {
-			prompt += "Assistant: " + msg.Content + "\n"
-		}
-	}
-
-	prompt += "Твой ответ: "
-
-	return prompt
 }
 
 func (s *Service) ClearMemory(userID string) {

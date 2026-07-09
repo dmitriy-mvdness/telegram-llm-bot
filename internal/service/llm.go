@@ -1,5 +1,5 @@
 package service
 
 type LLM interface {
-	Generate(prompt string) (string, error)
+	Chat(messages []Message) (string, error)
 }

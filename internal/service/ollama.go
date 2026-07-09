@@ -34,12 +34,12 @@ func NewOllamaClient(cfg config.OllamaConfig) *OllamaClient {
 	}
 }
 
-func (o *OllamaClient) Generate(prompt string) (string, error) {
+func (o *OllamaClient) Chat(messages []Message) (string, error) {
 	reqBody := map[string]any{
-		"model":  o.model,
-		"prompt": prompt,
-		"stream": false,
-		"think":  o.think,
+		"model":    o.model,
+		"messages": messages,
+		"stream":   false,
+		"think":    o.think,
 
 		"options": map[string]any{
 			"num_ctx":     o.numCtx,
@@ -53,8 +53,8 @@ func (o *OllamaClient) Generate(prompt string) (string, error) {
 		return "", err
 	}
 
-	resp, err := http.Post(
-		o.baseURL+"/api/generate",
+	resp, err := o.client.Post(
+		o.baseURL+"/api/chat",
 		"application/json",
 		bytes.NewBuffer(data),
 	)
@@ -64,7 +64,10 @@ func (o *OllamaClient) Generate(prompt string) (string, error) {
 	defer resp.Body.Close()
 
 	var result struct {
-		Response string `json:"response"`
+		Message struct {
+			Role    string `json:"role"`
+			Content string `json:"content"`
+		} `json:"message"`
 	}
 
 	err = json.NewDecoder(resp.Body).Decode(&result)
@@ -72,5 +75,5 @@ func (o *OllamaClient) Generate(prompt string) (string, error) {
 		return "", err
 	}
 
-	return result.Response, nil
+	return result.Message.Content, nil
 }
