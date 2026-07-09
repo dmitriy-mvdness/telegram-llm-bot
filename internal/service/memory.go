@@ -35,3 +35,10 @@ func (m *Memory) Get(userID string) []Message {
 
 	return m.store[userID]
 }
+
+func (m *Memory) Clear(userID string) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	delete(m.store, userID)
+}

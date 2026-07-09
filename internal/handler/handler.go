@@ -18,13 +18,13 @@ func New(svc *service.Service) *Handler {
 }
 
 // Обработка сообщений
-func (h *Handler) Handle(userID string, inputText string) string {
+func (h *Handler) Handle(userID, inputText string) string {
 	if inputText == "" {
 		return ""
 	}
 
 	if h.isCommand(inputText) {
-		return h.handleCommand(inputText)
+		return h.handleCommand(userID, inputText)
 	}
 
 	return h.handleChat(userID, inputText)
@@ -36,17 +36,25 @@ func (h *Handler) isCommand(inputText string) bool {
 }
 
 // Если команда
-func (h *Handler) handleCommand(inputText string) string {
+func (h *Handler) handleCommand(userID, inputText string) string {
 	inputText = strings.TrimSpace(inputText)
 
 	switch inputText {
 	case "/start":
-		return "Привет! Я ИИ-Ассистент. Задай любой вопрос, и я постараюсь помочь:-]"
+		return "👋 Привет!\n" +
+			"Я AI-Ассистент. Задай любой вопрос, и я постараюсь помочь :-]"
+
 	case "/help":
 		return "Доступные команды:\n" +
 			"/start - приветствие\n" +
-			"/help - помощь\n\n" +
-			"Просто напиши свой вопрос, и я отвечу!"
+			"/help - помощь\n" +
+			"/clear - очистить историю диалога\n\n" +
+			"Или просто напиши свой вопрос!"
+
+	case "/clear":
+		h.svc.ClearMemory(userID)
+		return "История диалога очищена!"
+
 	default:
 		return "Неизвестная команда!"
 	}

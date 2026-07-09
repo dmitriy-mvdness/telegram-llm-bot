@@ -60,3 +60,7 @@ func buildPrompt(history []Message) string {
 
 	return prompt
 }
+
+func (s *Service) ClearMemory(userID string) {
+	s.memory.Clear(userID)
+}
