@@ -9,6 +9,7 @@ import (
 
 	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/config"
 	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/handler"
+	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/llm"
 	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/service"
 	"github.com/go-telegram/bot"
 	"github.com/joho/godotenv"
@@ -29,7 +30,7 @@ func main() {
 
 	cfg := config.Load()
 
-	llm := service.NewOllamaClient(cfg.Ollama)
+	llm := llm.NewOllamaClient(cfg.Ollama)
 
 	log.Println("Checking Ollama...")
 	if err := llm.Health(ctx); err != nil {

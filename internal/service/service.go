@@ -1,5 +1,10 @@
 package service
 
+import (
+	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/model"
+	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/storage"
+)
+
 const systemPrompt = `
 Ты — AI-ассистент.
 Пиши только на русском языке.
@@ -11,18 +16,18 @@ const systemPrompt = `
 
 type Service struct {
 	llm    LLM
-	memory *Memory
+	memory *storage.Memory
 }
 
 func New(llm LLM) *Service {
 	return &Service{
 		llm:    llm,
-		memory: NewMemory(),
+		memory: storage.NewMemory(),
 	}
 }
 
 func (s *Service) Process(userID, inputText string) string {
-	s.memory.Add(userID, Message{
+	s.memory.Add(userID, model.Message{
 		Role:    "user",
 		Content: inputText,
 	})
@@ -30,7 +35,7 @@ func (s *Service) Process(userID, inputText string) string {
 	history := s.memory.Get(userID)
 
 	messages := append(
-		[]Message{
+		[]model.Message{
 			{
 				Role:    "system",
 				Content: systemPrompt,
@@ -44,7 +49,7 @@ func (s *Service) Process(userID, inputText string) string {
 		return "Ошибка генерации ответа: " + err.Error()
 	}
 
-	s.memory.Add(userID, Message{
+	s.memory.Add(userID, model.Message{
 		Role:    "assistant",
 		Content: resp,
 	})

@@ -1,24 +1,23 @@
-package service
+package storage
 
-import "sync"
+import (
+	"sync"
 
-type Message struct {
-	Role    string `json:"role"`
-	Content string `json:"content"`
-}
+	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/model"
+)
 
 type Memory struct {
 	mu    sync.Mutex
-	store map[string][]Message
+	store map[string][]model.Message
 }
 
 func NewMemory() *Memory {
 	return &Memory{
-		store: make(map[string][]Message),
+		store: make(map[string][]model.Message),
 	}
 }
 
-func (m *Memory) Add(userID string, msg Message) {
+func (m *Memory) Add(userID string, msg model.Message) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -29,7 +28,7 @@ func (m *Memory) Add(userID string, msg Message) {
 	}
 }
 
-func (m *Memory) Get(userID string) []Message {
+func (m *Memory) Get(userID string) []model.Message {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 

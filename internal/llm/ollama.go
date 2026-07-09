@@ -1,4 +1,4 @@
-package service
+package llm
 
 import (
 	"bytes"
@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/config"
+	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/model"
 )
 
 type OllamaClient struct {
@@ -34,7 +35,7 @@ func NewOllamaClient(cfg config.OllamaConfig) *OllamaClient {
 	}
 }
 
-func (o *OllamaClient) Chat(messages []Message) (string, error) {
+func (o *OllamaClient) Chat(messages []model.Message) (string, error) {
 	reqBody := map[string]any{
 		"model":    o.model,
 		"messages": messages,
