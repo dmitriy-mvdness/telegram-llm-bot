@@ -8,6 +8,7 @@ import (
 	"syscall"
 
 	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/config"
+	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/db"
 	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/handler"
 	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/llm"
 	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/service"
@@ -30,6 +31,12 @@ func main() {
 	}
 
 	cfg := config.Load()
+
+	database, err := db.Open(cfg.DatabaseDriver, cfg.DatabaseURL)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer database.Close()
 
 	llm := llm.NewOllamaClient(cfg.Ollama)
 
