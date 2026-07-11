@@ -26,13 +26,19 @@ func New(llm LLM, store storage.MessageStore) *Service {
 	}
 }
 
-func (s *Service) Process(userID, inputText string) string {
-	s.store.Add(userID, model.Message{
+func (s *Service) Process(chatID int64, inputText string) string {
+	err := s.store.Add(chatID, model.Message{
 		Role:    "user",
 		Content: inputText,
 	})
+	if err != nil {
+		return "Ошибка сохранения сообщения: " + err.Error()
+	}
 
-	history := s.store.Get(userID)
+	history, err := s.store.Get(chatID)
+	if err != nil {
+		return "Ошибка получения истори сообщений: " + err.Error()
+	}
 
 	messages := append(
 		[]model.Message{
@@ -49,7 +55,7 @@ func (s *Service) Process(userID, inputText string) string {
 		return "Ошибка генерации ответа: " + err.Error()
 	}
 
-	s.store.Add(userID, model.Message{
+	s.store.Add(chatID, model.Message{
 		Role:    "assistant",
 		Content: resp,
 	})
@@ -57,6 +63,6 @@ func (s *Service) Process(userID, inputText string) string {
 	return resp
 }
 
-func (s *Service) ClearMemory(userID string) {
-	s.store.Clear(userID)
+func (s *Service) ClearHistory(chatID int64) {
+	s.store.Clear(chatID)
 }

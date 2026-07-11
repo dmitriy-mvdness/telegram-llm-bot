@@ -8,36 +8,44 @@ import (
 
 type Memory struct {
 	mu    sync.Mutex
-	store map[string][]model.Message
+	store map[int64][]model.Message
 }
 
 func NewMemory() *Memory {
 	return &Memory{
-		store: make(map[string][]model.Message),
+		store: make(map[int64][]model.Message),
 	}
 }
 
-func (m *Memory) Add(userID string, msg model.Message) {
+func (m *Memory) Add(chatID int64, msg model.Message) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	m.store[userID] = append(m.store[userID], msg)
+	m.store[chatID] = append(m.store[chatID], msg)
 
-	if len(m.store[userID]) > 20 {
-		m.store[userID] = m.store[userID][1:]
+	if len(m.store[chatID]) > 20 {
+		m.store[chatID] = m.store[chatID][1:]
 	}
+
+	return nil
 }
 
-func (m *Memory) Get(userID string) []model.Message {
+func (m *Memory) Get(chatID int64) ([]model.Message, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	return m.store[userID]
+	history := m.store[chatID]
+
+	result := make([]model.Message, len(history))
+	copy(result, history)
+
+	return result, nil
 }
 
-func (m *Memory) Clear(userID string) {
+func (m *Memory) Clear(chatID int64) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	delete(m.store, userID)
+	delete(m.store, chatID)
+	return nil
 }

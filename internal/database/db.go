@@ -1,4 +1,4 @@
-package db
+package database
 
 import (
 	"database/sql"
@@ -13,6 +13,13 @@ func Open(driver, dsn string) (*sql.DB, error) {
 	}
 
 	if err := db.Ping(); err != nil {
+		db.Close()
+		return nil, err
+	}
+
+	_, err = db.Exec(`PRAGMA foreign_keys=ON;`)
+	if err != nil {
+		db.Close()
 		return nil, err
 	}
 

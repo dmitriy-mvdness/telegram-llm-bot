@@ -3,7 +3,6 @@ package handler
 import (
 	"context"
 	"log"
-	"strconv"
 
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
@@ -16,11 +15,10 @@ func (h *Handler) Register(b *bot.Bot) {
 		}
 
 		chatID := update.Message.Chat.ID
-		userID := strconv.FormatInt(chatID, 10)
 		text := update.Message.Text
 
 		if h.isCommand(text) {
-			resp := h.Handle(userID, text)
+			resp := h.Handle(chatID, text)
 
 			b.SendMessage(ctx, &bot.SendMessageParams{
 				ChatID: chatID,
@@ -43,12 +41,12 @@ func (h *Handler) Register(b *bot.Bot) {
 		})
 		if err != nil {
 			log.Printf("failed to send status message: %v", err)
-			resp := h.Handle(userID, text)
+			resp := h.Handle(chatID, text)
 			b.SendMessage(ctx, &bot.SendMessageParams{ChatID: chatID, Text: resp})
 			return
 		}
 
-		resp := h.Handle(userID, text)
+		resp := h.Handle(chatID, text)
 
 		_, err = b.EditMessageText(ctx, &bot.EditMessageTextParams{
 			ChatID:    chatID,

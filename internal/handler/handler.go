@@ -18,16 +18,16 @@ func New(svc *service.Service) *Handler {
 }
 
 // Обработка сообщений
-func (h *Handler) Handle(userID, inputText string) string {
+func (h *Handler) Handle(chatID int64, inputText string) string {
 	if inputText == "" {
 		return ""
 	}
 
 	if h.isCommand(inputText) {
-		return h.handleCommand(userID, inputText)
+		return h.handleCommand(chatID, inputText)
 	}
 
-	return h.handleChat(userID, inputText)
+	return h.handleChat(chatID, inputText)
 }
 
 // Проверка на тип сообщения
@@ -36,7 +36,7 @@ func (h *Handler) isCommand(inputText string) bool {
 }
 
 // Если команда
-func (h *Handler) handleCommand(userID, inputText string) string {
+func (h *Handler) handleCommand(chatID int64, inputText string) string {
 	inputText = strings.TrimSpace(inputText)
 
 	switch inputText {
@@ -52,7 +52,7 @@ func (h *Handler) handleCommand(userID, inputText string) string {
 			"Или просто напиши свой вопрос!"
 
 	case "/clear":
-		h.svc.ClearMemory(userID)
+		h.svc.ClearHistory(chatID)
 		return "История диалога очищена!"
 
 	default:
@@ -61,6 +61,6 @@ func (h *Handler) handleCommand(userID, inputText string) string {
 }
 
 // Если обычное сообщение
-func (h *Handler) handleChat(userID string, inputText string) string {
-	return h.svc.Process(userID, inputText)
+func (h *Handler) handleChat(chatID int64, inputText string) string {
+	return h.svc.Process(chatID, inputText)
 }
