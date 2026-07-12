@@ -1,36 +1,37 @@
-package storage
+package memory
 
 import (
 	"sync"
 
+	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/config"
 	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/model"
 )
 
-type Memory struct {
+type MemoryStore struct {
 	mu    sync.Mutex
 	store map[int64][]model.Message
 }
 
-func NewMemory() *Memory {
-	return &Memory{
+func New() *MemoryStore {
+	return &MemoryStore{
 		store: make(map[int64][]model.Message),
 	}
 }
 
-func (m *Memory) Add(chatID int64, msg model.Message) error {
+func (m *MemoryStore) Add(chatID int64, msg model.Message) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
 	m.store[chatID] = append(m.store[chatID], msg)
 
-	if len(m.store[chatID]) > 20 {
+	if len(m.store[chatID]) > config.HistoryLimit {
 		m.store[chatID] = m.store[chatID][1:]
 	}
 
 	return nil
 }
 
-func (m *Memory) Get(chatID int64) ([]model.Message, error) {
+func (m *MemoryStore) Get(chatID int64) ([]model.Message, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -42,7 +43,7 @@ func (m *Memory) Get(chatID int64) ([]model.Message, error) {
 	return result, nil
 }
 
-func (m *Memory) Clear(chatID int64) error {
+func (m *MemoryStore) Clear(chatID int64) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 

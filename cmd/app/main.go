@@ -12,7 +12,7 @@ import (
 	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/handler"
 	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/llm"
 	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/service"
-	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/storage"
+	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/storage/memory"
 	"github.com/go-telegram/bot"
 	"github.com/joho/godotenv"
 )
@@ -53,7 +53,7 @@ func main() {
 
 	log.Println("LLM is ready.")
 
-	memory := storage.NewMemory()
+	memory := memory.New()
 
 	svc := service.New(llm, memory)
 

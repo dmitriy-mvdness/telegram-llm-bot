@@ -9,6 +9,8 @@ const (
 	DefaultTemperature   = 0.3
 	DefaultHealthTimeout = 10
 	DefaultThink         = false
+
+	HistoryLimit = 50
 )
 
 type Config struct {
