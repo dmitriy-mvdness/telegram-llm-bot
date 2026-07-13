@@ -20,10 +20,13 @@ func (h *Handler) Register(b *bot.Bot) {
 		if h.isCommand(text) {
 			resp := h.Handle(chatID, text)
 
-			b.SendMessage(ctx, &bot.SendMessageParams{
+			_, err := b.SendMessage(ctx, &bot.SendMessageParams{
 				ChatID: chatID,
 				Text:   resp,
 			})
+			if err != nil {
+				log.Printf("failed to send message to chat %d: %v", chatID, err)
+			}
 			return
 		}
 
@@ -32,7 +35,7 @@ func (h *Handler) Register(b *bot.Bot) {
 			Action: models.ChatActionTyping,
 		})
 		if err != nil {
-			log.Printf("failed to send chat action: %v", err)
+			log.Printf("failed to send chat action to chat %d: %v", chatID, err)
 		}
 
 		statusMsg, err := b.SendMessage(ctx, &bot.SendMessageParams{
@@ -40,9 +43,11 @@ func (h *Handler) Register(b *bot.Bot) {
 			Text:   "⏳ Бот думает...",
 		})
 		if err != nil {
-			log.Printf("failed to send status message: %v", err)
+			log.Printf("failed to send status message to chat %d: %v", chatID, err)
 			resp := h.Handle(chatID, text)
-			b.SendMessage(ctx, &bot.SendMessageParams{ChatID: chatID, Text: resp})
+			if _, err := b.SendMessage(ctx, &bot.SendMessageParams{ChatID: chatID, Text: resp}); err != nil {
+				log.Printf("failed to fallback send to chat %d: %v", chatID, err)
+			}
 			return
 		}
 
@@ -55,10 +60,12 @@ func (h *Handler) Register(b *bot.Bot) {
 		})
 		if err != nil {
 			log.Printf("failed to edit message: %v", err)
-			b.SendMessage(ctx, &bot.SendMessageParams{
+			if _, err := b.SendMessage(ctx, &bot.SendMessageParams{
 				ChatID: chatID,
 				Text:   resp,
-			})
+			}); err != nil {
+				log.Printf("failed to fallback send after edit fail to chat %d: %v", chatID, err)
+			}
 		}
 	})
 }
