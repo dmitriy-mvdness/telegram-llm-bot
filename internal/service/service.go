@@ -17,16 +17,22 @@ const systemPrompt = `
 type Service struct {
 	llm   LLM
 	store storage.MessageStore
+	user  storage.UserStore
 }
 
-func New(llm LLM, store storage.MessageStore) *Service {
+func New(llm LLM, store storage.MessageStore, user storage.UserStore) *Service {
 	return &Service{
 		llm:   llm,
 		store: store,
+		user:  user,
 	}
 }
 
 func (s *Service) Process(chatID int64, inputText string) string {
+	if err := s.user.Ensure(chatID); err != nil {
+		return "Ensure user failed: " + err.Error()
+	}
+
 	err := s.store.Add(chatID, model.Message{
 		Role:    "user",
 		Content: inputText,

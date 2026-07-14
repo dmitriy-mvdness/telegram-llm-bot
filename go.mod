@@ -4,6 +4,7 @@ go 1.25.4
 
 require (
 	github.com/go-telegram/bot v1.22.0
+	github.com/golang-migrate/migrate/v4 v4.19.1
 	github.com/joho/godotenv v1.5.1
 	modernc.org/sqlite v1.53.0
 )

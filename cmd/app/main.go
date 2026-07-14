@@ -12,7 +12,7 @@ import (
 	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/handler"
 	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/llm"
 	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/service"
-	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/storage/memory"
+	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/storage/sqlite"
 	"github.com/go-telegram/bot"
 	"github.com/joho/godotenv"
 )
@@ -32,11 +32,21 @@ func main() {
 
 	cfg := config.Load()
 
-	database, err := database.Open(cfg.DatabaseDriver, cfg.DatabaseURL)
+	db, err := database.Open(cfg.DatabaseDriver, cfg.DatabaseURL)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer database.Close()
+	log.Println("Database opened successfully")
+
+	if err := database.RunMigrations(db); err != nil {
+		log.Fatalf("Migration failed: %v", err)
+	}
+
+	// Костыль, тк БД после миграций закрывается
+	db, err = database.Open(cfg.DatabaseDriver, cfg.DatabaseURL)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	llm := llm.NewOllamaClient(cfg.Ollama)
 
@@ -53,9 +63,10 @@ func main() {
 
 	log.Println("LLM is ready.")
 
-	memory := memory.New()
+	messageStore := sqlite.New(db)
+	userStore := sqlite.NewUserStore(db)
 
-	svc := service.New(llm, memory)
+	svc := service.New(llm, messageStore, userStore)
 
 	h := handler.New(svc)
 
