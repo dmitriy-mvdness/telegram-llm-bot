@@ -1,10 +1,19 @@
-include .env
+-include .env
 export
 
+.PHONY: run build tidy clean
+
 run:
-	@echo "Запуск программы..."
-	@go run .cmd/app/main.go
+	@echo Запуск программы...
+	@go mod tidy
+	@go run ./cmd/app
 
 build:
-	@echo "Сборка программы..."
-	@go build -o bin/app cmd/app/main.go
+	@echo Сборка программы...
+	@go mod tidy
+	@mkdir bin
+	@go build -o bin/app ./cmd/app
+
+clean:
+	@go clean
+	@if exist bin rmdir /s /q bin
