@@ -1,7 +1,7 @@
 -include .env
 export
 
-.PHONY: run build tidy clean
+.PHONY: run build clean
 
 run:
 	@echo Запуск программы...
