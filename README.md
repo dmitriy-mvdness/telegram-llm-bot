@@ -1,13 +1,13 @@
-# Telegram LLM Bot
+# Telegram LLM Assistant
 
 <div align="center">
 
 [![Go Version](https://img.shields.io/badge/Go-1.21+-00ADD8?style=for-the-badge&logo=go&logoColor=white)](https://go.dev/)
-[![Ollama](https://img.shields.io/badge/Ollama-0.1.0+-green?style=for-the-badge&logo=ollama&logoColor=white)](https://ollama.ai/)
+[![Ollama](https://img.shields.io/badge/Ollama-Local-green?style=for-the-badge&logo=ollama&logoColor=white)](https://ollama.com/)
 [![Status](https://img.shields.io/badge/Status-Development-orange?style=for-the-badge)](https://github.com/dmitriy-mvdness/telegram-llm-bot)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 
-**Telegram бот с локальной LLM на Go + Ollama**
+**Telegram-бот с локальной LLM на Go + Ollama**
 
 </div>
 
@@ -15,29 +15,37 @@
 
 ## О проекте
 
-Этот Telegram бот позволяет общаться с локальной языковой моделью через Ollama. Всё работает полностью офлайн — никаких облачных провайдеров и платежей.
+Telegram-бот для общения с локальной языковой моделью через [Ollama](https://ollama.com/).
 
-**Как начать:**
+Все AI-запросы обрабатываются локально — данные не передаются сторонним AI-провайдерам. Единственное внешнее взаимодействие происходит через Telegram Bot API.
 
-1. Клонируешь репозиторий
-2. Настраиваешь переменные окружения (токен бота, параметры модели)
-3. Запускаешь приложение — и бот готов к работе
+**Быстрый старт:**
 
-> Проект на стадии активной разработки. Используется для личных целей и изучения возможностей Go + LLM + Telegram API.
+1. Клонировать репозиторий
+2. Настроить переменные окружения
+3. Запустить приложение
 
-### Особенности
+После запуска бот готов принимать сообщения и отвечать через выбранную LLM-модель.
 
-- **Локальная LLM** — все запросы обрабатываются через Ollama, ничего не уходит в облако
-- **Написан на Go** — эффективное использование ресурсов и простой деплой
-- **Контекст диалога** — бот помнит историю сообщений
+> Проект находится в активной разработке. Создан для изучения возможностей Go, локальных LLM и Telegram Bot API.
+
+---
+
+## Особенности
+
+- **Локальная LLM** — запуск моделей через Ollama без использования внешних AI-сервисов
+- **Go** — высокая производительность, низкое потребление ресурсов и простой деплой
+- **Контекст диалога** — сохранение истории сообщений для поддержания контекста общения
+- **Гибкое хранилище** — история может храниться в оперативной памяти (RAM) или базе данных
 
 ---
 
 ## Технологии
 
-- [Go](https://go.dev/) — основной язык
-- [Ollama](https://ollama.ai/) — запуск LLM локально
-- [Telegram Bot API](https://github.com/go-telegram/bot) — взаимодействие с Telegram
+- [Go](https://go.dev/) — основной язык разработки
+- [Ollama](https://ollama.com/) — локальный запуск LLM-моделей
+- [Telegram Bot API](https://core.telegram.org/bots/api) — взаимодействие с Telegram
+- [go-telegram/bot](https://github.com/go-telegram/bot) — Go-библиотека для Telegram Bot API
 
 ---
 
@@ -45,71 +53,134 @@
 
 | Команда | Описание |
 |---------|----------|
-| `/start` | Приветственное сообщение и начало работы |
-| `/help`  | Список доступных команд |
-| `/clear` | Очистка истории диалога |
+| `/start` | Запуск бота и приветственное сообщение |
+| `/help` | Просмотр доступных команд |
+| `/settings` | Настройки ассистента и управление историей диалога |
 
-> Больше команд появится по мере развития проекта.
+> Новые команды будут добавляться по мере развития проекта.
 
 ---
 
 ## Установка и запуск
 
 ### Требования
-- Установленный [Go](https://go.dev/dl/) (версия 1.21+)
+- Установленный [Go](https://go.dev/dl/) версии **1.21+**
 - Установленный и запущенный [Ollama](https://ollama.com/download)
-- Загруженная LLM модель (например, `ollama run llama3.1` или `openchat:7b`)
+- Загруженная LLM модель (например, `llama3.1` или `qwen3`)
+- Telegram Bot Token для подключения к API
 
-### Шаги
+---
 
-1. **Клонируй репозиторий**
+### 1. Клонирование репозитория
+
 ```bash
 git clone https://github.com/dmitriy-mvdness/telegram-llm-bot.git
-cd telegram-llm-bot
-```
 
-2. **Установи зависимости**
+cd telegram-llm-bot
+````
+
+---
+
+### 2. Установка зависимостей
+
 ```bash
 go mod download
 ```
 
-3. **Настрой переменные окружения**
-```bash
-# Скопируй пример конфига
-cp .env.example .env
+---
 
-# Отредактируй .env, указав свои данные и настроки для llm
-# TELEGRAM_TOKEN=твой_токен_бота
-# OLLAMA_BASE_URL=http://localhost:11434
-# OLLAMA_MODEL=llama3.1
-# ...
+### 3. Настройка переменных окружения
+
+Создай файл `.env`:
+
+```bash
+cp .env.example .env
 ```
 
-4. **Запусти бота**
+Отредактируй настройки:
+
+```env
+TELEGRAM_TOKEN=твой_токен_бота
+
+OLLAMA_BASE_URL=http://localhost:11434
+
+OLLAMA_MODEL=llama3.1
+```
+
+---
+
+## Конфигурация
+
+Основные параметры:
+
+| Переменная | Описание | Пример |
+|------------|----------|--------|
+| `TELEGRAM_TOKEN` | Токен Telegram-бота | `123456:ABC...` |
+| `OLLAMA_MODEL` | Используемая LLM-модель | `llama3.1:8b` |
+| `OLLAMA_BASE_URL` | Адрес Ollama API | `http://localhost:11434` |
+| `OLLAMA_NUM_CTX` | Размер контекстного окна модели | `8192` |
+| `OLLAMA_NUM_PREDICT` | Максимальное количество токенов в ответе | `2048` |
+| `OLLAMA_TEMPERATURE` | Настройка креативности ответов модели | `0.4` |
+| `OLLAMA_HEALTH_TIMEOUT` | Таймаут проверки доступности Ollama | `30` |
+| `OLLAMA_THINK` | Включение режима thinking модели | `false` |
+| `DATABASE_URL` | Путь к базе данных | `file:storage.db` |
+
+---
+
+### 4. Запуск
+
+Запуск через Go:
+
 ```bash
 go run cmd/app/main.go
 ```
 
-Или собери бинарник:
+Или сборка бинарника:
+
 ```bash
 go build -o telegram-bot cmd/app/main.go
+
 ./telegram-bot
 ```
 
-Или же воспользуйся Makefile:
+---
+
+### Запуск через Makefile
+
 ```bash
-# Запуск
+# Запуск приложения
 make run
 
-# Сборка
+# Сборка бинарника
 make build
+
+# Удаление бинарника
+make clean
+
+# Обновление зависимостей
+make tidy
 ```
+
+---
+
+## Архитектура хранения контекста
+
+Бот поддерживает несколько вариантов хранения истории диалога:
+
+* **RAM** — быстрый вариант без внешних зависимостей
+* **Database** — постоянное хранение истории между перезапусками
+
+Способ хранения можно заменить через изменение реализации хранилища без изменения основной логики приложения.
 
 ---
 
 ## Как помочь проекту
 
-- Поставь звезду на GitHub
-- Сообщай об ошибках в [Issues](https://github.com/dmitriy-mvdness/telegram-llm-bot/issues)
-- Предлагай новые идеи
-- Отправляй Pull Requests с улучшениями
+Буду рад любой помощи:
+
+* Поставить ⭐ проекту на GitHub
+* Сообщить об ошибке через [Issues](https://github.com/dmitriy-mvdness/telegram-llm-bot/issues)
+* Предложить новые идеи
+* Создать Pull Request с улучшениями
+
+---
