@@ -69,6 +69,9 @@ func (s *Service) Process(chatID int64, inputText string) string {
 	return resp
 }
 
-func (s *Service) ClearHistory(chatID int64) {
-	s.store.Clear(chatID)
+func (s *Service) ClearHistory(chatID int64) error {
+	if err := s.store.Clear(chatID); err != nil {
+		return err
+	}
+	return nil
 }
