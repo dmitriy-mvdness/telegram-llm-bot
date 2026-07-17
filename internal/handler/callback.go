@@ -55,6 +55,8 @@ func (h *Handler) handleCallback(
 		); err != nil {
 			log.Printf("failed to send history cleared message: %v", err)
 		}
+	case "system_prompts":
+
 	default:
 		log.Printf("unknown callback: %s", data)
 	}
