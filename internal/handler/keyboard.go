@@ -18,3 +18,40 @@ func SettingsKeyboard() *models.InlineKeyboardMarkup {
 		},
 	}
 }
+
+func AssistantRoleKeyboard() *models.InlineKeyboardMarkup {
+	return &models.InlineKeyboardMarkup{
+		InlineKeyboard: [][]models.InlineKeyboardButton{
+			{
+				{
+					Text:         "🤖 Обычный",
+					CallbackData: "prompt_default",
+				},
+			},
+			{
+				{
+					Text:         "⚡ Краткий",
+					CallbackData: "prompt_concise",
+				},
+			},
+			{
+				{
+					Text:         "🎓 Экспертный",
+					CallbackData: "prompt_academic",
+				},
+			},
+			{
+				{
+					Text:         "🧠 Наводящий",
+					CallbackData: "prompt_socratic",
+				},
+			},
+			{
+				{
+					Text:         "📚 Подробный",
+					CallbackData: "prompt_encyclopedic",
+				},
+			},
+		},
+	}
+}

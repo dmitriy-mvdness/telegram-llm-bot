@@ -56,6 +56,21 @@ func (h *Handler) handleCallback(
 			log.Printf("failed to send history cleared message: %v", err)
 		}
 	case "system_prompts":
+		if _, err := b.SendMessage(
+			ctx,
+			&bot.SendMessageParams{
+				ChatID: chatID,
+				Text: ` 🎭 Роль ассистента
+				
+Какой стиль ответов вам подходит?
+
+Выберите режим:
+				`,
+				ReplyMarkup: AssistantRoleKeyboard(),
+			},
+		); err != nil {
+			log.Printf("failed to send prompts message: %v", err)
+		}
 
 	default:
 		log.Printf("unknown callback: %s", data)
