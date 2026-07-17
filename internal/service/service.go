@@ -2,19 +2,11 @@ package service
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/model"
 	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/storage"
 )
-
-const systemPrompt = `
-Ты — AI-ассистент.
-Пиши только на русском языке.
-Отвечай естественно и по делу.
-Если не знаешь — скажи об этом.
-Не выдумывай информацию.
-Пиши естественно, без лишних приветствий и повторов.
-`
 
 type Service struct {
 	llm   LLM
@@ -48,11 +40,16 @@ func (s *Service) Process(chatID int64, inputText string) string {
 		return "Ошибка получения истори сообщений: " + err.Error()
 	}
 
+	prompt, err := s.GetUserPrompt(chatID)
+	if err != nil {
+		log.Println(err)
+	}
+
 	messages := append(
 		[]model.Message{
 			{
 				Role:    "system",
-				Content: systemPrompt,
+				Content: prompt.Content,
 			},
 		},
 		history...,
