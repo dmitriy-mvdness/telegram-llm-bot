@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"github.com/go-telegram/bot"
@@ -56,20 +57,101 @@ func (h *Handler) handleCallback(
 			log.Printf("failed to send history cleared message: %v", err)
 		}
 	case "system_prompts":
+		prompt, err := h.svc.GetUserPrompt(chatID)
+		if err != nil {
+			log.Println(err)
+		}
+
 		if _, err := b.SendMessage(
 			ctx,
 			&bot.SendMessageParams{
 				ChatID: chatID,
-				Text: ` 🎭 Роль ассистента
-				
-Какой стиль ответов вам подходит?
+				Text: fmt.Sprintf(`🎭 Роль ассистента
 
-Выберите режим:
-				`,
+Текущая роль: %s
+
+Режимы:
+🤖 Обычный — универсальный стиль
+⚡ Краткий — только главное
+🎓 Экспертный — точные и строгие ответы
+🧠 Наводящий — через вопросы и рассуждения
+📚 Подробный — объяснения с примерами
+
+Выберите стиль ответов:`, prompt.DisplayName),
 				ReplyMarkup: AssistantRoleKeyboard(),
 			},
 		); err != nil {
 			log.Printf("failed to send prompts message: %v", err)
+		}
+	case "prompt_default":
+		if err := h.svc.UpdateUserPrompt(chatID, 1); err != nil {
+			log.Println(err)
+		}
+
+		if _, err := b.SendMessage(
+			ctx,
+			&bot.SendMessageParams{
+				ChatID: chatID,
+				Text:   PromptSelectedMessage("🤖 Обычный"),
+			},
+		); err != nil {
+			log.Printf("failed to send prompt activate message: %v", err)
+		}
+	case "prompt_concise":
+		if err := h.svc.UpdateUserPrompt(chatID, 2); err != nil {
+			log.Println(err)
+		}
+
+		if _, err := b.SendMessage(
+			ctx,
+			&bot.SendMessageParams{
+				ChatID: chatID,
+				Text:   PromptSelectedMessage("⚡ Краткий"),
+			},
+		); err != nil {
+			log.Printf("failed to send prompt activate message: %v", err)
+		}
+	case "prompt_academic":
+		if err := h.svc.UpdateUserPrompt(chatID, 3); err != nil {
+			log.Println(err)
+		}
+
+		if _, err := b.SendMessage(
+			ctx,
+			&bot.SendMessageParams{
+				ChatID: chatID,
+				Text:   PromptSelectedMessage("🎓 Экспертный"),
+			},
+		); err != nil {
+			log.Printf("failed to send prompt activate message: %v", err)
+		}
+	case "prompt_provocative":
+		if err := h.svc.UpdateUserPrompt(chatID, 4); err != nil {
+			log.Println(err)
+		}
+
+		if _, err := b.SendMessage(
+			ctx,
+			&bot.SendMessageParams{
+				ChatID: chatID,
+				Text:   PromptSelectedMessage("🧠 Наводящий"),
+			},
+		); err != nil {
+			log.Printf("failed to send prompt activate message: %v", err)
+		}
+	case "prompt_encyclopedic":
+		if err := h.svc.UpdateUserPrompt(chatID, 5); err != nil {
+			log.Println(err)
+		}
+
+		if _, err := b.SendMessage(
+			ctx,
+			&bot.SendMessageParams{
+				ChatID: chatID,
+				Text:   PromptSelectedMessage("📚 Подробный"),
+			},
+		); err != nil {
+			log.Printf("failed to send prompt activate message: %v", err)
 		}
 
 	default:

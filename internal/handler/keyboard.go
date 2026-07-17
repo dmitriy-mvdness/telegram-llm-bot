@@ -43,7 +43,7 @@ func AssistantRoleKeyboard() *models.InlineKeyboardMarkup {
 			{
 				{
 					Text:         "🧠 Наводящий",
-					CallbackData: "prompt_socratic",
+					CallbackData: "prompt_provocative",
 				},
 			},
 			{

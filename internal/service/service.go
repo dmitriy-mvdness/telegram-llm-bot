@@ -1,6 +1,8 @@
 package service
 
 import (
+	"fmt"
+
 	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/model"
 	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/storage"
 )
@@ -73,5 +75,22 @@ func (s *Service) ClearHistory(chatID int64) error {
 	if err := s.store.Clear(chatID); err != nil {
 		return err
 	}
+	return nil
+}
+
+func (s *Service) GetUserPrompt(chatID int64) (model.Prompt, error) {
+	prompt, err := s.user.GetUserPrompt(chatID)
+	if err != nil {
+		return model.Prompt{}, fmt.Errorf("failed to get current prompt for chat %d: %w", chatID, err)
+	}
+
+	return prompt, nil
+}
+
+func (s *Service) UpdateUserPrompt(chatID int64, promptID int) error {
+	if err := s.user.UpdatePrompt(chatID, promptID); err != nil {
+		return fmt.Errorf("failed to update prompt for chat %d: %w", chatID, err)
+	}
+
 	return nil
 }
