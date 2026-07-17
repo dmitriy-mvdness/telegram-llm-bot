@@ -10,6 +10,10 @@ func SettingsKeyboard() *models.InlineKeyboardMarkup {
 					Text:         "🗑️ Очистить историю",
 					CallbackData: "clear_history",
 				},
+				{
+					Text:         "🎭 Роль ассистента",
+					CallbackData: "system_prompts",
+				},
 			},
 		},
 	}
