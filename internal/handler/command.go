@@ -16,6 +16,10 @@ func (h *Handler) handleCommand(
 	chatID := update.Message.Chat.ID
 	command := update.Message.Text
 
+	if !h.ensureUser(chatID) {
+		return
+	}
+
 	switch command {
 	case "/start":
 		_, err := b.SendMessage(

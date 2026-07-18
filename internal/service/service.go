@@ -23,10 +23,6 @@ func New(llm LLM, store storage.MessageStore, user storage.UserStore) *Service {
 }
 
 func (s *Service) Process(chatID int64, inputText string) string {
-	if err := s.user.Ensure(chatID); err != nil {
-		return "Ensure user failed: " + err.Error()
-	}
-
 	err := s.store.Add(chatID, model.Message{
 		Role:    "user",
 		Content: inputText,
@@ -90,4 +86,8 @@ func (s *Service) UpdateUserPrompt(chatID int64, promptID int) error {
 	}
 
 	return nil
+}
+
+func (s *Service) EnsureUser(chatID int64) error {
+	return s.user.Ensure(chatID)
 }

@@ -16,6 +16,10 @@ func (h *Handler) handleMessage(
 	chatID := update.Message.Chat.ID
 	text := update.Message.Text
 
+	if !h.ensureUser(chatID) {
+		return
+	}
+
 	if _, err := b.SendChatAction(
 		ctx,
 		&bot.SendChatActionParams{

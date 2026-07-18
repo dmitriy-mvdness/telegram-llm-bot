@@ -31,6 +31,10 @@ func (h *Handler) handleCallback(
 	data := update.CallbackQuery.Data
 	chatID := update.CallbackQuery.Message.Message.Chat.ID
 
+	if !h.ensureUser(chatID) {
+		return
+	}
+
 	switch data {
 	case "clear_history":
 		if err := h.svc.ClearHistory(chatID); err != nil {
