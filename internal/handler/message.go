@@ -16,6 +16,23 @@ func (h *Handler) handleMessage(
 	chatID := update.Message.Chat.ID
 	text := update.Message.Text
 
+	if !h.busy.TryLock(chatID) {
+		_, err := b.SendMessage(
+			ctx,
+			&bot.SendMessageParams{
+				ChatID: chatID,
+				Text:   "❗ Подождите, я ещё обрабатываю предыдущий запрос",
+			},
+		)
+
+		if err != nil {
+			log.Printf("failed send busy message: %v", err)
+		}
+
+		return
+	}
+	defer h.busy.Unlock(chatID)
+
 	if !h.ensureUser(chatID) {
 		return
 	}

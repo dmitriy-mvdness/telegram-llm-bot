@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/busy"
 	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/config"
 	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/database"
 	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/handler"
@@ -66,9 +67,11 @@ func main() {
 	messageStore := sqlite.New(db)
 	userStore := sqlite.NewUserStore(db)
 
+	busyManager := busy.NewManager()
+
 	svc := service.New(llm, messageStore, userStore)
 
-	h := handler.New(svc)
+	h := handler.New(svc, busyManager)
 
 	b, err := bot.New(token)
 	if err != nil {
