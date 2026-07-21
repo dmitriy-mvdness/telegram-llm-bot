@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"log"
 
@@ -22,7 +23,7 @@ func New(llm LLM, store storage.MessageStore, user storage.UserStore) *Service {
 	}
 }
 
-func (s *Service) Process(chatID int64, inputText string) string {
+func (s *Service) Process(ctx context.Context, chatID int64, inputText string) string {
 	err := s.store.Add(chatID, model.Message{
 		Role:    "user",
 		Content: inputText,
@@ -51,7 +52,7 @@ func (s *Service) Process(chatID int64, inputText string) string {
 		history...,
 	)
 
-	resp, err := s.llm.Chat(messages)
+	resp, err := s.llm.Chat(ctx, messages)
 	if err != nil {
 		return "Ошибка генерации ответа: " + err.Error()
 	}

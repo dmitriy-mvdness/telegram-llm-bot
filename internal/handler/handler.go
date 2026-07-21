@@ -1,13 +1,18 @@
 package handler
 
 import (
+	"sync"
+	"sync/atomic"
+
 	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/busy"
 	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/service"
 )
 
 type Handler struct {
-	svc  *service.Service
-	busy *busy.Manager
+	svc                *service.Service
+	busy               *busy.Manager
+	processingMessages sync.Map
+	isShuttingDown     atomic.Bool
 }
 
 func New(svc *service.Service, busy *busy.Manager) *Handler {

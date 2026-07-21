@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/busy"
 	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/config"
@@ -82,4 +83,13 @@ func main() {
 
 	log.Println("Bot started!")
 	b.Start(ctx)
+
+	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer shutdownCancel()
+
+	h.Shutdown(shutdownCtx, b)
+
+	db.Close()
+
+	log.Println("Shutdown complete")
 }

@@ -96,7 +96,7 @@ func (h *Handler) handleMessage(
 	if err != nil {
 		log.Printf("failed to send status message: %v", err)
 
-		resp := h.svc.Process(chatID, text)
+		resp := h.svc.Process(ctx, chatID, text)
 
 		if _, err := b.SendMessage(
 			ctx,
@@ -111,7 +111,19 @@ func (h *Handler) handleMessage(
 		return
 	}
 
-	resp := h.svc.Process(chatID, text)
+	h.processingMessages.Store(chatID, statusMsg.ID)
+	defer h.processingMessages.Delete(chatID)
+
+	if h.isShuttingDown.Load() {
+		b.EditMessageText(ctx, &bot.EditMessageTextParams{
+			ChatID:    chatID,
+			MessageID: statusMsg.ID,
+			Text:      "⚠️ Сервис временно недоступен",
+		})
+		return
+	}
+
+	resp := h.svc.Process(ctx, chatID, text)
 
 	_, err = b.EditMessageText(
 		ctx,
@@ -135,4 +147,25 @@ func (h *Handler) handleMessage(
 			log.Printf("failed fallback send after edit: %v", err)
 		}
 	}
+}
+
+func (h *Handler) Shutdown(ctx context.Context, b *bot.Bot) {
+	h.isShuttingDown.Store(true)
+
+	h.processingMessages.Range(func(key, value interface{}) bool {
+		chatID := key.(int64)
+		msgID := value.(int)
+
+		_, err := b.EditMessageText(ctx, &bot.EditMessageTextParams{
+			ChatID:    chatID,
+			MessageID: msgID,
+			Text:      "⚠️ Произошла ошибка, попробуйте позже",
+		})
+
+		if err != nil {
+			log.Printf("failed to edit processing message for chat %d: %v", chatID, err)
+		}
+
+		return true
+	})
 }

@@ -2,6 +2,7 @@ package llm
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"net/http"
 	"time"
@@ -35,7 +36,7 @@ func NewOllamaClient(cfg config.OllamaConfig) *OllamaClient {
 	}
 }
 
-func (o *OllamaClient) Chat(messages []model.Message) (string, error) {
+func (o *OllamaClient) Chat(ctx context.Context, messages []model.Message) (string, error) {
 	reqBody := map[string]any{
 		"model":    o.model,
 		"messages": messages,
@@ -54,11 +55,19 @@ func (o *OllamaClient) Chat(messages []model.Message) (string, error) {
 		return "", err
 	}
 
-	resp, err := o.client.Post(
+	req, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPost,
 		o.baseURL+"/api/chat",
-		"application/json",
 		bytes.NewBuffer(data),
 	)
+	if err != nil {
+		return "", err
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := o.client.Do(req)
 	if err != nil {
 		return "", err
 	}
