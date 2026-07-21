@@ -29,17 +29,23 @@ func (s *Service) Process(ctx context.Context, chatID int64, inputText string) s
 		Content: inputText,
 	})
 	if err != nil {
-		return "Ошибка сохранения сообщения: " + err.Error()
+		log.Printf("failed to save message: %v", err)
+
+		return "❌ Не удалось получить ответ. Попробуйте позже"
 	}
 
 	history, err := s.store.Get(chatID)
 	if err != nil {
-		return "Ошибка получения истори сообщений: " + err.Error()
+		log.Printf("failed to get message history: %v", err)
+
+		return "❌ Не удалось получить ответ. Попробуйте позже"
 	}
 
 	prompt, err := s.GetUserPrompt(chatID)
 	if err != nil {
 		log.Println(err)
+
+		return "❌ Не удалось получить ответ. Попробуйте позже"
 	}
 
 	messages := append(
@@ -54,13 +60,17 @@ func (s *Service) Process(ctx context.Context, chatID int64, inputText string) s
 
 	resp, err := s.llm.Chat(ctx, messages)
 	if err != nil {
-		return "Ошибка генерации ответа: " + err.Error()
+		log.Printf("failed to generate response: %v", err)
+
+		return "❌ Не удалось получить ответ. Попробуйте позже"
 	}
 
-	s.store.Add(chatID, model.Message{
+	if err := s.store.Add(chatID, model.Message{
 		Role:    "assistant",
 		Content: resp,
-	})
+	}); err != nil {
+		log.Printf("failed to save assistant message: %v", err)
+	}
 
 	return resp
 }

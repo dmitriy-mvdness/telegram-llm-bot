@@ -19,8 +19,6 @@ func (h *Handler) handleMessage(
 
 	if !h.busy.TryLock(chatID) {
 
-		// Удаляем сообщение пользователя,
-		// так как предыдущий запрос ещё выполняется
 		if _, err := b.DeleteMessage(
 			ctx,
 			&bot.DeleteMessageParams{
@@ -31,7 +29,6 @@ func (h *Handler) handleMessage(
 			log.Printf("failed to delete busy user message: %v", err)
 		}
 
-		// Проверяем, отправляли ли уже уведомление
 		if h.busy.GetNoticeMessage(chatID) == 0 {
 
 			msg, err := b.SendMessage(
