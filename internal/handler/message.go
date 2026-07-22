@@ -19,28 +19,22 @@ func (h *Handler) handleMessage(
 
 	if !h.busy.TryLock(chatID) {
 
-		if _, err := b.DeleteMessage(
-			ctx,
-			&bot.DeleteMessageParams{
-				ChatID:    chatID,
-				MessageID: messageID,
-			},
-		); err != nil {
+		if _, err := b.DeleteMessage(ctx, &bot.DeleteMessageParams{
+			ChatID:    chatID,
+			MessageID: messageID,
+		}); err != nil {
 			log.Printf("failed to delete busy user message: %v", err)
 		}
 
-		if h.busy.GetNoticeMessage(chatID) == 0 {
-
-			msg, err := b.SendMessage(
-				ctx,
-				&bot.SendMessageParams{
-					ChatID: chatID,
-					Text:   "❗ Подождите, я ещё обрабатываю предыдущий запрос",
-				},
-			)
+		if h.busy.TryReserveNotice(chatID) {
+			msg, err := b.SendMessage(ctx, &bot.SendMessageParams{
+				ChatID: chatID,
+				Text:   "❗ Подождите, я ещё обрабатываю предыдущий запрос",
+			})
 
 			if err != nil {
 				log.Printf("failed to send busy message: %v", err)
+				h.busy.ReleaseNoticeReservation(chatID)
 				return
 			}
 
