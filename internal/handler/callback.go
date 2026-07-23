@@ -157,6 +157,23 @@ func (h *Handler) handleCallback(
 		); err != nil {
 			log.Printf("failed to send prompt activate message: %v", err)
 		}
+	case "stop_generation":
+		h.generation.Cancel(chatID)
+
+		if msgID, ok := h.processingMessages.Load(chatID); ok {
+
+			_, err := b.DeleteMessage(
+				ctx,
+				&bot.DeleteMessageParams{
+					ChatID:    chatID,
+					MessageID: msgID.(int),
+				},
+			)
+
+			if err != nil {
+				log.Printf("failed to delete processing message: %v", err)
+			}
+		}
 
 	default:
 		log.Printf("unknown callback: %s", data)

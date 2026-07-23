@@ -55,3 +55,16 @@ func AssistantRoleKeyboard() *models.InlineKeyboardMarkup {
 		},
 	}
 }
+
+func StopGenerationKeyboard() *models.InlineKeyboardMarkup {
+	return &models.InlineKeyboardMarkup{
+		InlineKeyboard: [][]models.InlineKeyboardButton{
+			{
+				{
+					Text:         "🛑 Остановить",
+					CallbackData: "stop_generation",
+				},
+			},
+		},
+	}
+}

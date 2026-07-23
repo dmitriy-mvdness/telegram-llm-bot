@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"errors"
 	"log"
 
 	"github.com/go-telegram/bot"
@@ -66,6 +67,12 @@ func (h *Handler) handleMessage(
 		return
 	}
 
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	h.generation.Set(cancel, chatID)
+	defer h.generation.Delete(chatID)
+
 	if _, err := b.SendChatAction(
 		ctx,
 		&bot.SendChatActionParams{
@@ -79,8 +86,9 @@ func (h *Handler) handleMessage(
 	statusMsg, err := b.SendMessage(
 		ctx,
 		&bot.SendMessageParams{
-			ChatID: chatID,
-			Text:   "⏳ Бот думает...",
+			ChatID:      chatID,
+			Text:        "⏳ Бот думает...",
+			ReplyMarkup: StopGenerationKeyboard(),
 		},
 	)
 
@@ -89,13 +97,10 @@ func (h *Handler) handleMessage(
 
 		resp, err := h.svc.Process(ctx, chatID, text)
 
-		if err != nil {
-			log.Printf(
-				"process failed chat=%d: %v",
-				chatID,
-				err,
-			)
-
+		if errors.Is(err, context.Canceled) {
+			resp = "🛑 Генерация остановлена"
+		} else {
+			log.Printf("process failed chat=%d: %v", chatID, err)
 			resp = defaultErrorMessage
 		}
 

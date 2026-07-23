@@ -11,6 +11,7 @@ import (
 	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/busy"
 	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/config"
 	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/database"
+	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/generation"
 	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/handler"
 	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/llm"
 	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/service"
@@ -68,11 +69,13 @@ func main() {
 	messageStore := sqlite.New(db)
 	userStore := sqlite.NewUserStore(db)
 
+	generationManager := generation.NewManager()
+
 	busyManager := busy.NewManager()
 
 	svc := service.New(llm, messageStore, userStore)
 
-	h := handler.New(svc, busyManager)
+	h := handler.New(svc, busyManager, generationManager)
 
 	b, err := bot.New(token)
 	if err != nil {
