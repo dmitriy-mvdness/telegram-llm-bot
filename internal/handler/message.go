@@ -87,7 +87,17 @@ func (h *Handler) handleMessage(
 	if err != nil {
 		log.Printf("failed to send status message: %v", err)
 
-		resp := h.svc.Process(ctx, chatID, text)
+		resp, err := h.svc.Process(ctx, chatID, text)
+
+		if err != nil {
+			log.Printf(
+				"process failed chat=%d: %v",
+				chatID,
+				err,
+			)
+
+			resp = defaultErrorMessage
+		}
 
 		if _, err := b.SendMessage(
 			ctx,
@@ -114,7 +124,12 @@ func (h *Handler) handleMessage(
 		return
 	}
 
-	resp := h.svc.Process(ctx, chatID, text)
+	resp, err := h.svc.Process(ctx, chatID, text)
+	if err != nil {
+		log.Printf("process failed chat=%d: %v", chatID, err)
+
+		resp = defaultErrorMessage
+	}
 
 	_, err = b.EditMessageText(
 		ctx,

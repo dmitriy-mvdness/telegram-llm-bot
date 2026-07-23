@@ -5,6 +5,8 @@ import (
 	"log"
 )
 
+const defaultErrorMessage = "❌ Не удалось получить ответ. Попробуйте позже"
+
 func (h *Handler) isCommand(text string) bool {
 	return len(text) > 0 && text[0] == '/'
 }

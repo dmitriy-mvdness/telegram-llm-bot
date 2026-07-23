@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/model"
 	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/storage"
@@ -23,29 +22,23 @@ func New(llm LLM, store storage.MessageStore, user storage.UserStore) *Service {
 	}
 }
 
-func (s *Service) Process(ctx context.Context, chatID int64, inputText string) string {
+func (s *Service) Process(ctx context.Context, chatID int64, inputText string) (string, error) {
 	err := s.store.Add(chatID, model.Message{
 		Role:    "user",
 		Content: inputText,
 	})
 	if err != nil {
-		log.Printf("failed to save message: %v", err)
-
-		return "❌ Не удалось получить ответ. Попробуйте позже"
+		return "", fmt.Errorf("failed to save message: %w", err)
 	}
 
 	history, err := s.store.Get(chatID)
 	if err != nil {
-		log.Printf("failed to get message history: %v", err)
-
-		return "❌ Не удалось получить ответ. Попробуйте позже"
+		return "", fmt.Errorf("failed to get message history: %w", err)
 	}
 
 	prompt, err := s.GetUserPrompt(chatID)
 	if err != nil {
-		log.Println(err)
-
-		return "❌ Не удалось получить ответ. Попробуйте позже"
+		return "", fmt.Errorf("get user prompt: %w", err)
 	}
 
 	messages := append(
@@ -60,25 +53,24 @@ func (s *Service) Process(ctx context.Context, chatID int64, inputText string) s
 
 	resp, err := s.llm.Chat(ctx, messages)
 	if err != nil {
-		log.Printf("failed to generate response: %v", err)
-
-		return "❌ Не удалось получить ответ. Попробуйте позже"
+		return "", fmt.Errorf("failed to generate llm response: %w", err)
 	}
 
 	if err := s.store.Add(chatID, model.Message{
 		Role:    "assistant",
 		Content: resp,
 	}); err != nil {
-		log.Printf("failed to save assistant message: %v", err)
+		return "", fmt.Errorf("failed to save assistant message: %w", err)
 	}
 
-	return resp
+	return resp, nil
 }
 
 func (s *Service) ClearHistory(chatID int64) error {
 	if err := s.store.Clear(chatID); err != nil {
-		return err
+		return fmt.Errorf("clear history for chat %d: %w", chatID, err)
 	}
+
 	return nil
 }
 
@@ -100,5 +92,9 @@ func (s *Service) UpdateUserPrompt(chatID int64, promptID int) error {
 }
 
 func (s *Service) EnsureUser(chatID int64) error {
-	return s.user.Ensure(chatID)
+	if err := s.user.Ensure(chatID); err != nil {
+		return fmt.Errorf("ensure user %d: %w", chatID, err)
+	}
+
+	return nil
 }
