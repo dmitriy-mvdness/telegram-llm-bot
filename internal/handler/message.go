@@ -67,7 +67,7 @@ func (h *Handler) handleMessage(
 		return
 	}
 
-	ctx, cancel := context.WithCancel(ctx)
+	generationCtx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
 	h.generation.Set(cancel, chatID)
@@ -95,10 +95,10 @@ func (h *Handler) handleMessage(
 	if err != nil {
 		log.Printf("failed to send status message: %v", err)
 
-		resp, err := h.svc.Process(ctx, chatID, text)
+		resp, err := h.svc.Process(generationCtx, chatID, text)
 
 		if errors.Is(err, context.Canceled) {
-			resp = "🛑 Генерация остановлена"
+			return
 		} else {
 			log.Printf("process failed chat=%d: %v", chatID, err)
 			resp = defaultErrorMessage
@@ -129,7 +129,12 @@ func (h *Handler) handleMessage(
 		return
 	}
 
-	resp, err := h.svc.Process(ctx, chatID, text)
+	resp, err := h.svc.Process(generationCtx, chatID, text)
+
+	if errors.Is(err, context.Canceled) {
+		return
+	}
+
 	if err != nil {
 		log.Printf("process failed chat=%d: %v", chatID, err)
 
