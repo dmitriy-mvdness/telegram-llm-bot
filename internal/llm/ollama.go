@@ -14,12 +14,11 @@ import (
 type OllamaClient struct {
 	client *http.Client
 
-	baseURL     string
-	model       string
-	numCtx      int
-	numPredict  int
-	temperature float64
-	think       bool
+	baseURL    string
+	model      string
+	numCtx     int
+	numPredict int
+	think      bool
 }
 
 func NewOllamaClient(cfg config.OllamaConfig) *OllamaClient {
@@ -27,16 +26,15 @@ func NewOllamaClient(cfg config.OllamaConfig) *OllamaClient {
 		client: &http.Client{
 			Timeout: time.Duration(cfg.HealthTimeout) * time.Second,
 		},
-		baseURL:     cfg.BaseURL,
-		model:       cfg.Model,
-		numCtx:      cfg.NumCtx,
-		numPredict:  cfg.NumPredict,
-		temperature: cfg.Temperature,
-		think:       cfg.Think,
+		baseURL:    cfg.BaseURL,
+		model:      cfg.Model,
+		numCtx:     cfg.NumCtx,
+		numPredict: cfg.NumPredict,
+		think:      cfg.Think,
 	}
 }
 
-func (o *OllamaClient) Chat(ctx context.Context, messages []model.Message) (string, error) {
+func (o *OllamaClient) Chat(ctx context.Context, messages []model.Message, options config.LLMOptions) (string, error) {
 	reqBody := map[string]any{
 		"model":    o.model,
 		"messages": messages,
@@ -46,7 +44,7 @@ func (o *OllamaClient) Chat(ctx context.Context, messages []model.Message) (stri
 		"options": map[string]any{
 			"num_ctx":     o.numCtx,
 			"num_predict": o.numPredict,
-			"temperature": o.temperature,
+			"temperature": options.Temperature,
 		},
 	}
 

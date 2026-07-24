@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/config"
 	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/model"
 	"github.com/dmitriy-mvdness/telegram-llm-bot/internal/storage"
 )
@@ -41,6 +42,12 @@ func (s *Service) Process(ctx context.Context, chatID int64, inputText string) (
 		return "", fmt.Errorf("get user prompt: %w", err)
 	}
 
+	promptCfg, ok := config.PromptConfigs[prompt.Name]
+
+	if !ok {
+		promptCfg = config.PromptConfigs["Обычный"]
+	}
+
 	messages := append(
 		[]model.Message{
 			{
@@ -51,7 +58,7 @@ func (s *Service) Process(ctx context.Context, chatID int64, inputText string) (
 		history...,
 	)
 
-	resp, err := s.llm.Chat(ctx, messages)
+	resp, err := s.llm.Chat(ctx, messages, promptCfg.Options)
 	if err != nil {
 		return "", fmt.Errorf("failed to generate llm response: %w", err)
 	}

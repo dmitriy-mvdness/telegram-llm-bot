@@ -32,7 +32,7 @@ func (s *UserStore) Ensure(chatID int64) error {
 
 func (s *UserStore) GetUserPrompt(chatID int64) (model.Prompt, error) {
 	query := `
-		SELECT p.display_name, p.content
+		SELECT p.name, p.display_name, p.content
 		FROM users u
 		JOIN prompts p ON u.selected_prompt_id = p.prompt_id
 		WHERE u.chat_id = ?;
@@ -42,7 +42,7 @@ func (s *UserStore) GetUserPrompt(chatID int64) (model.Prompt, error) {
 
 	var prompt model.Prompt
 
-	err := row.Scan(&prompt.DisplayName, &prompt.Content)
+	err := row.Scan(&prompt.Name, &prompt.DisplayName, &prompt.Content)
 	if err != nil {
 		return model.Prompt{}, err
 	}
